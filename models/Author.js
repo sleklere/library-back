@@ -3,14 +3,19 @@ const mongoose = require("mongoose");
 const authorSchema = new mongoose.Schema(
   {
     createdAt: { type: Date, default: Date.now() },
-    firstName: {
+    name: {
       type: String,
       required: [true, "An author must have a first name"],
+      unique: true,
     },
-    lastName: {
-      type: String,
-      required: [true, "An author must have a last name"],
-    },
+    // firstName: {
+    //   type: String,
+    //   required: [true, "An author must have a first name"],
+    // },
+    // lastName: {
+    //   type: String,
+    //   required: [true, "An author must have a last name"],
+    // },
     category: {
       type: String,
       default: "Any",

@@ -9,6 +9,9 @@ const hpp = require("hpp");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/globalErrorHandler");
+const booksRouter = require("./routes/bookRoutes");
+const authorRouter = require("./routes/authorRoutes");
+const userRouter = require("./routes/userRoutes");
 
 const app = express();
 
@@ -39,10 +42,18 @@ app.use(xss());
 app.use(hpp());
 
 // route handling
+app.use("/api/v1/books", booksRouter);
+app.use("/api/v1/authors", authorRouter);
+app.use("/api/v1/users", userRouter);
 
 // fallback for undefined routes
 app.all("*", (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  next(
+    new AppError(
+      `Can't find (${req.method}) ${req.originalUrl} on this server!`,
+      404,
+    ),
+  );
 });
 
 app.use(globalErrorHandler);
