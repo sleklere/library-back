@@ -9,6 +9,7 @@ const bookSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      unique: true,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
@@ -22,9 +23,9 @@ const bookSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Reference to the user who borrowed the book
     },
-    category: {
-      type: String,
-      default: "All",
+    categories: {
+      type: [String],
+      // default: ["All"],
     },
     // subtitle?
     // pages?
