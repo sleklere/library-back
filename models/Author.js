@@ -16,12 +16,19 @@ const authorSchema = new mongoose.Schema(
     //   type: String,
     //   required: [true, "An author must have a last name"],
     // },
-    category: {
-      type: String,
-      default: "Any",
+    categories: {
+      type: [String],
     },
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } },
+  {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+      },
+    },
+    toObject: { virtuals: true },
+  },
 );
 
 const Author = mongoose.model("Author", authorSchema);

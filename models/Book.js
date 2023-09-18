@@ -25,7 +25,6 @@ const bookSchema = new mongoose.Schema(
     },
     categories: {
       type: [String],
-      // default: ["All"],
     },
     // subtitle?
     // pages?
@@ -37,6 +36,11 @@ const bookSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+bookSchema.pre(/^find/, function (next) {
+  this.populate({ path: "author", select: "name category" });
+  next();
+});
 
 const Book = mongoose.model("Book", bookSchema);
 

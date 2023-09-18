@@ -17,7 +17,6 @@ class APIFeatures {
       /\b(gte|gt|lte|lt)\b/g,
       match => `$${match}`,
     );
-    console.log(JSON.parse(queryString));
 
     this.query = this.query.find(JSON.parse(queryString));
 
@@ -28,7 +27,6 @@ class APIFeatures {
     if (this.queryObject.sort) {
       // sort by more than one field (to address the cases in which more than 1 document has the same field that is 1st sorted by)
       const sortBy = this.queryObject.sort.split(",").join(" ");
-      console.log(sortBy);
       this.query = this.query.sort(sortBy);
     } else {
       // sort by newest ones first

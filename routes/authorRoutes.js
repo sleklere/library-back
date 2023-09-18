@@ -2,6 +2,7 @@ const express = require("express");
 const {
   getAllAuthors,
   createAuthor,
+  editAuthor,
 } = require("../controllers/authorsController");
 const { protect } = require("../controllers/authController");
 const router = express.Router();
@@ -13,5 +14,6 @@ router.get("/", getAllAuthors);
 router.use(protect);
 
 router.post("/", createAuthor);
+router.post("/:id/edit", editAuthor);
 
 module.exports = router;
