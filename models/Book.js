@@ -14,22 +14,24 @@ const bookSchema = new mongoose.Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Author",
+      required: true,
     },
     isAvailable: {
       type: Boolean,
       default: true, // Set to true by default (book is in the library)
     },
     borrower: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to the user who borrowed the book
+      type: String,
     },
     categories: {
       type: [String],
     },
-    // subtitle?
-    // pages?
-    // date of publication?
-    // first edition date of publication?
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Book must belong to a user"],
+      index: true, // Index on userId for faster queries
+    },
   },
   {
     toJSON: { virtuals: true },

@@ -5,17 +5,21 @@ const {
   editBook,
   getBook,
   deleteBook,
+  getAllBooksSortAuthor,
 } = require("../controllers/booksController");
 const { protect } = require("../controllers/authController");
 const router = express.Router();
 
-// get all books
-router.get("/", getAllBooks);
+// protected routes
+router.use(protect);
+
 // get one book
 router.get("/:id", getBook);
 
-// protected routes
-router.use(protect);
+// get all books
+router.get("/", getAllBooks);
+
+router.get("/sortAuthor", getAllBooksSortAuthor);
 
 // add a new book to the library
 router.post("/", createBook);

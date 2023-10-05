@@ -35,8 +35,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   user.password = undefined;
 
-  console.log(user);
-
   res.status(201).json({
     status: "success",
     data: {
@@ -46,29 +44,20 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
+  if (!username || !password) {
+    return next(new AppError("Please provide username and password!", 400));
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ username }).select("+password");
   const correct = await user?.correctPassword(password, user?.password);
 
   if (!user || !correct)
-    return next(new AppError("Incorrect email or password", 401));
+    return next(new AppError("Incorrect username or password", 401));
 
   createSendToken(user, 200, res);
 });
-
-exports.logout = (req, res) => {
-  // because of httpOnly, the cookie can't be deleted, so instead it is overwritten with a new empty one, with a short expiration
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-  });
-  res.status(200).json({ status: "success" });
-};
 
 exports.protect = catchAsync(async (req, res, next) => {
   const authHeaders = req.headers.authorization;
@@ -76,8 +65,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   if (authHeaders && authHeaders.startsWith("Bearer")) {
     token = authHeaders.split(" ")[1];
-  } else if (req.cookies?.jwt) {
-    token = req.cookies.jwt;
   }
 
   if (!token) {

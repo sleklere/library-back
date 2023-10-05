@@ -3,20 +3,15 @@ const APIFeatures = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
-// get all (filter, i.e: available/not available books)
-// get one
-// update one
-// delete one
-
 exports.createOne = Model =>
-  catchAsync(async (req, res, next) => {
+  catchAsync(async (req, res) => {
     // if its a book, check if the author exists in the db
     let reqBody = req.body;
     if (req.body.author) {
       let author = await Author.findOne({ name: req.body.author });
 
       if (!author) {
-        author = Author.create({ name: req.body.author });
+        author = await Author.create({ name: req.body.author });
       }
       reqBody.author = author._id;
     }
@@ -35,9 +30,8 @@ exports.createOne = Model =>
 exports.getAll = Model =>
   catchAsync(async (req, res) => {
     // To allow for nested GET reviews on tour (hack)
-    let filter = {};
-    if (req.params.author) filter = { author: req.params.author };
-
+    let filter = { userId: req.user._id };
+    if (req.params.author) filter.author = req.params.author;
     // Execute Query
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
