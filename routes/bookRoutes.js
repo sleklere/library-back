@@ -13,13 +13,13 @@ const router = express.Router();
 // protected routes
 router.use(protect);
 
+router.get("/sortAuthor", getAllBooksSortAuthor);
+
 // get one book
 router.get("/:id", getBook);
 
 // get all books
 router.get("/", getAllBooks);
-
-router.get("/sortAuthor", getAllBooksSortAuthor);
 
 // add a new book to the library
 router.post("/", createBook);
