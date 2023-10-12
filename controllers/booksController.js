@@ -1,20 +1,20 @@
-const Book = require("../models/Book");
-const catchAsync = require("../utils/catchAsync");
-const {
+import Book from "../models/Book.js";
+import catchAsync from "../utils/catchAsync.js";
+import {
   getAll,
   createOne,
   updateOne,
   getOne,
   deleteOne,
-} = require("./factoryHandlers");
+} from "./factoryHandlers.js";
 
-exports.getAllBooks = getAll(Book);
-exports.getBook = getOne(Book);
-exports.createBook = createOne(Book);
-exports.editBook = updateOne(Book);
-exports.deleteBook = deleteOne(Book);
+export const getAllBooks = getAll(Book);
+export const getBook = getOne(Book);
+export const createBook = createOne(Book);
+export const editBook = updateOne(Book);
+export const deleteBook = deleteOne(Book);
 
-exports.getAllBooksSortAuthor = catchAsync(async (req, res) => {
+export const getAllBooksSortAuthor = catchAsync(async (req, res) => {
   // Determine sorting order based on the 'sort' query parameter
   let sortField = "author.name"; // Default sorting field (ascending)
   let sortOrder = 1;

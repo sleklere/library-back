@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const { promisify } = require("util");
-const User = require("../models/User");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
+import jwt from "jsonwebtoken";
+import { promisify } from "util";
+import User from "../models/User.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
 
 const signToken = id =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -23,7 +23,7 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
+export const signup = catchAsync(async (req, res, next) => {
   const user = await User.create({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -43,7 +43,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+export const login = catchAsync(async (req, res, next) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -59,7 +59,7 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
   const authHeaders = req.headers.authorization;
   let token;
 

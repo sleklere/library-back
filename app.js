@@ -1,17 +1,16 @@
-const express = require("express");
+import express, { application } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import mongoSanitize from "express-mongo-sanitize";
+// import xss from "xss-clean";
+import hpp from "hpp";
 
-const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
-const hpp = require("hpp");
-
-const AppError = require("./utils/appError");
-const globalErrorHandler = require("./controllers/globalErrorHandler");
-const booksRouter = require("./routes/bookRoutes");
-const authorRouter = require("./routes/authorRoutes");
-const userRouter = require("./routes/userRoutes");
+import AppError from "./utils/appError.js";
+import globalErrorHandler from "./controllers/globalErrorHandler.js";
+import booksRouter from "./routes/bookRoutes.js";
+import authorRouter from "./routes/authorRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 
 const app = express();
 
@@ -37,7 +36,7 @@ app.use(express.json({ limit: "10kb" }));
 
 app.use(mongoSanitize());
 
-app.use(xss());
+// app.use(xss());
 
 app.use(hpp());
 
@@ -58,4 +57,4 @@ app.all("*", (req, res, next) => {
 
 app.use(globalErrorHandler);
 
-module.exports = app;
+export default app;

@@ -1,6 +1,6 @@
-const Author = require("../models/Author");
-const { getAll, createOne, updateOne } = require("./factoryHandlers");
+import Author from "../models/Author.js";
+import { getAll, createOne, updateOne } from "./factoryHandlers.js";
 
-exports.getAllAuthors = getAll(Author);
-exports.createAuthor = createOne(Author);
-exports.editAuthor = updateOne(Author);
+export const getAllAuthors = getAll(Author);
+export const createAuthor = createOne(Author);
+export const editAuthor = updateOne(Author);

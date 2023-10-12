@@ -1,11 +1,12 @@
-const express = require("express");
-const {
+import {
   getAllAuthors,
   createAuthor,
   editAuthor,
-} = require("../controllers/authorsController");
-const { protect } = require("../controllers/authController");
-const router = express.Router();
+} from "../controllers/authorsController";
+import { protect } from "../controllers/authController";
+import { Router } from "express";
+
+const router = Router();
 
 // get all authors
 router.get("/", getAllAuthors);
@@ -16,4 +17,4 @@ router.use(protect);
 router.post("/", createAuthor);
 router.post("/:id/edit", editAuthor);
 
-module.exports = router;
+export default router;

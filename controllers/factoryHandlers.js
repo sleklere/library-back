@@ -1,9 +1,9 @@
-const Author = require("../models/Author");
-const APIFeatures = require("../utils/apiFeatures");
-const AppError = require("../utils/appError");
-const catchAsync = require("../utils/catchAsync");
+import Author from "../models/Author.js";
+import APIFeatures from "../utils/apiFeatures.js";
+import AppError from "../utils/appError.js";
+import catchAsync from "../utils/catchAsync.js";
 
-exports.createOne = Model =>
+export const createOne = Model =>
   catchAsync(async (req, res) => {
     // if its a book, check if the author exists in the db
     let reqBody = req.body;
@@ -27,7 +27,7 @@ exports.createOne = Model =>
     });
   });
 
-exports.getAll = Model =>
+export const getAll = Model =>
   catchAsync(async (req, res) => {
     // To allow for nested GET reviews on tour (hack)
     let filter = { userId: req.user._id };
@@ -52,7 +52,7 @@ exports.getAll = Model =>
     });
   });
 
-exports.getOne = (Model, populateOptions) =>
+export const getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
     if (populateOptions) query = query.populate(populateOptions);
@@ -72,7 +72,7 @@ exports.getOne = (Model, populateOptions) =>
     });
   });
 
-exports.updateOne = Model =>
+export const updateOne = Model =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -93,7 +93,7 @@ exports.updateOne = Model =>
     });
   });
 
-exports.deleteOne = Model =>
+export const deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
 

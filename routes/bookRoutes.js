@@ -1,14 +1,15 @@
-const express = require("express");
-const {
+import {
   getAllBooks,
   createBook,
   editBook,
   getBook,
   deleteBook,
   getAllBooksSortAuthor,
-} = require("../controllers/booksController");
-const { protect } = require("../controllers/authController");
-const router = express.Router();
+} from "../controllers/booksController.js";
+import { protect } from "../controllers/authController.js";
+import { Router } from "express";
+
+const router = Router();
 
 // protected routes
 router.use(protect);
@@ -28,4 +29,4 @@ router.post("/:id/edit", editBook);
 
 router.delete("/:id", deleteBook);
 
-module.exports = router;
+export default router;

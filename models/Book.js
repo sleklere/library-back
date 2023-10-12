@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const bookSchema = new mongoose.Schema(
   {
@@ -47,4 +47,4 @@ bookSchema.pre(/^find/, function (next) {
 
 const Book = mongoose.model("Book", bookSchema);
 
-module.exports = Book;
+export default Book;
