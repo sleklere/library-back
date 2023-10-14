@@ -1,3 +1,5 @@
+import { Router } from "express";
+import { protect } from "../controllers/authController.js";
 import {
   getAllBooks,
   createBook,
@@ -6,8 +8,6 @@ import {
   deleteBook,
   getAllBooksSortAuthor,
 } from "../controllers/booksController.js";
-import { protect } from "../controllers/authController.js";
-import { Router } from "express";
 
 const router = Router();
 

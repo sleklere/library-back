@@ -3,19 +3,58 @@ import APIFeatures from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 
-export const createOne = Model =>
-  catchAsync(async (req, res) => {
+export const addAuthorToBody = async reqBody => {
+  const { author } = reqBody;
+
+  let authorDoc = await Author.findOne({ name: author });
+
+  if (!authorDoc) {
+    authorDoc = await Author.create({ name: author });
+  }
+  reqBody.author = authorDoc.id;
+  return reqBody;
+};
+
+// export const createOne = Model =>
+//   catchAsync(async (req, res) => {
+//     // if its a book, check if the author exists in the db
+//     let reqBody = req.body;
+//     if (req.body.author) {
+//       reqBody = await addAuthorToBody(reqBody);
+//     }
+//     const doc = await Model.create(reqBody);
+
+//     if (!doc) {
+//       console.log("NO DOCUMENT WAS CREATED");
+//       throw new AppError("Document could not be created", 400);
+//     }
+
+//     const modelName = Model.modelName.toLowerCase();
+
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         [modelName]: doc,
+//       },
+//     });
+//   });
+
+/*
+ WORKS ONLY FOR TESTING
+*/
+
+export const createOne = Model => async (req, res, next) => {
+  try {
     // if its a book, check if the author exists in the db
     let reqBody = req.body;
     if (req.body.author) {
-      let author = await Author.findOne({ name: req.body.author });
-
-      if (!author) {
-        author = await Author.create({ name: req.body.author });
-      }
-      reqBody.author = author._id;
+      reqBody = await addAuthorToBody(reqBody);
     }
     const doc = await Model.create(reqBody);
+
+    if (!doc) {
+      throw new AppError("Document could not be created", 400);
+    }
 
     const modelName = Model.modelName.toLowerCase();
 
@@ -25,7 +64,10 @@ export const createOne = Model =>
         [modelName]: doc,
       },
     });
-  });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const getAll = Model =>
   catchAsync(async (req, res) => {

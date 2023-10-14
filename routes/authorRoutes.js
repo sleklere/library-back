@@ -2,8 +2,8 @@ import {
   getAllAuthors,
   createAuthor,
   editAuthor,
-} from "../controllers/authorsController";
-import { protect } from "../controllers/authController";
+} from "../controllers/authorsController.js";
+import { protect } from "../controllers/authController.js";
 import { Router } from "express";
 
 const router = Router();
