@@ -1,4 +1,5 @@
-import express, { application } from "express";
+import express from "express";
+import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -11,6 +12,8 @@ import globalErrorHandler from "./controllers/globalErrorHandler.js";
 import booksRouter from "./routes/bookRoutes.js";
 import authorRouter from "./routes/authorRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+
+dotenv.config();
 
 const app = express();
 
