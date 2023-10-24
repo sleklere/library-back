@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest dev",
-    "start": "nodemon server.js",
-    "start:prod": "SET NODE_ENV=production& nodemon server.js"
+    "start": "node server.js",
+    "start:dev": "SET NODE_ENV=production& nodemon server.js"
   },
   "repository": {
     "type": "git",
