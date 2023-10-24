@@ -8,7 +8,6 @@ process.on("uncaughtException", err => {
   process.exit(1);
 });
 
-// dotenv.config({ path: "config.env" });
 dotenv.config();
 
 import app from "./app.js";
