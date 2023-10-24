@@ -7,6 +7,7 @@ import {
   getBook,
   deleteBook,
   getAllBooksSortAuthor,
+  deleteBooks,
 } from "../controllers/booksController.js";
 
 const router = Router();
@@ -25,8 +26,9 @@ router.get("/", getAllBooks);
 // add a new book to the library
 router.post("/", createBook);
 // modify a book's information
-router.post("/:id/edit", editBook);
+router.patch("/:id/edit", editBook);
 
+router.delete("/delete", deleteBooks);
 router.delete("/:id", deleteBook);
 
 export default router;

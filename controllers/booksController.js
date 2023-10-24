@@ -6,6 +6,7 @@ import {
   updateOne,
   getOne,
   deleteOne,
+  deleteMany,
 } from "./factoryHandlers.js";
 
 export const getAllBooks = getAll(Book);
@@ -13,6 +14,7 @@ export const getBook = getOne(Book);
 export const createBook = createOne(Book);
 export const editBook = updateOne(Book);
 export const deleteBook = deleteOne(Book);
+export const deleteBooks = deleteMany(Book);
 
 export const getAllBooksSortAuthor = catchAsync(async (req, res) => {
   // Determine sorting order based on the 'sort' query parameter

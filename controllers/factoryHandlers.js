@@ -11,7 +11,9 @@ export const addAuthorToBody = async reqBody => {
   if (!authorDoc) {
     authorDoc = await Author.create({ name: author });
   }
+
   reqBody.author = authorDoc.id;
+
   return reqBody;
 };
 
@@ -116,7 +118,12 @@ export const getOne = (Model, populateOptions) =>
 
 export const updateOne = Model =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+    let reqBody;
+    if (Model.modelName === "Book") {
+      reqBody = await addAuthorToBody(req.body);
+    }
+
+    const doc = await Model.findByIdAndUpdate(req.params.id, reqBody, {
       new: true,
       runValidators: true,
     });
@@ -148,5 +155,24 @@ export const deleteOne = Model =>
       status: "success",
       // data is sent as null to show that deleted resource no longer exists
       data: null,
+    });
+  });
+export const deleteMany = Model =>
+  catchAsync(async (req, res, next) => {
+    console.log(req.body);
+    const { bookIDs } = req.body;
+    const deletions = await Model.deleteMany({ _id: { $in: bookIDs } });
+
+    console.log(deletions);
+
+    if (!deletions) {
+      return next(new AppError("No documents were deleted", 500));
+    }
+
+    // 204 -> No content
+    res.status(204).json({
+      status: "success",
+      // data is sent as null to show that deleted resource no longer exists
+      data: deletions,
     });
   });

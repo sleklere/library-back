@@ -41,7 +41,8 @@ const bookSchema = new mongoose.Schema(
 );
 
 bookSchema.pre(/^find/, function (next) {
-  this.populate({ path: "author", select: "name category" });
+  // this.populate({ path: "author", select: "id name category" });
+  this.populate("author");
   next();
 });
 
