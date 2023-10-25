@@ -35,12 +35,13 @@ export const signup = catchAsync(async (req, res, next) => {
 
   user.password = undefined;
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      user,
-    },
-  });
+  // res.status(201).json({
+  //   status: "success",
+  //   data: {
+  //     user,
+  //   },
+  // });
+  createSendToken(user, 200, res);
 });
 
 export const login = catchAsync(async (req, res, next) => {
