@@ -1,11 +1,13 @@
-import AppError from "../utils/appError.js";
+import { NextFunction, Request, Response } from "express";
+import AppError, { IAppError } from "../utils/appError.js";
+import { CastError } from "mongoose";
 
-export const handleCastErrorDB = err => {
+export const handleCastErrorDB = (err: CastError) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
 };
 
-const handleDuplicateFieldsDB = err => {
+const handleDuplicateFieldsDB = (err: Error) => {
   let message;
   // send custom error message back to the client
   if ("email" in err.keyValue) {
@@ -18,14 +20,14 @@ const handleDuplicateFieldsDB = err => {
   return new AppError(message, 400);
 };
 
-const handleValidationErrorDB = err => {
+const handleValidationErrorDB = (err: Error) => {
   const errors = Object.values(err.errors).map(el => el.message);
 
   const message = `Invalid input data. ${errors.join(". ")}`;
   return new AppError(message, 400);
 };
 
-const sendErrorDev = (err, req, res) =>
+const sendErrorDev = (err: IAppError, req: Request, res: Response) =>
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -33,7 +35,7 @@ const sendErrorDev = (err, req, res) =>
     stack: err.stack,
   });
 
-const sendErrorProd = (err, req, res) => {
+const sendErrorProd = (err: Error, req: Request, res: Response) => {
   // Operational error
   if (err.isOperational) {
     return res.status(err.statusCode).json({
@@ -50,7 +52,12 @@ const sendErrorProd = (err, req, res) => {
   });
 };
 
-export default (err, req, res, next) => {
+export default (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 

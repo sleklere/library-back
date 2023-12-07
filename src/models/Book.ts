@@ -1,6 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, {
+  Document,
+  ObjectId,
+  PopulatedDoc,
+  Schema,
+  Types,
+} from "mongoose";
+import { IAuthor } from "./Author.js";
 
-const bookSchema = new mongoose.Schema(
+interface IBook extends Document {
+  createdAt: Date;
+  title: string;
+  author: ObjectId | IAuthor;
+  isAvailable: boolean;
+  borrower: string;
+  categories: Array<string>;
+  userId: ObjectId;
+}
+
+const bookSchema = new Schema<IBook>(
   {
     createdAt: {
       type: Date,
@@ -12,7 +29,7 @@ const bookSchema = new mongoose.Schema(
       unique: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.ObjectId,
       ref: "Author",
       required: true,
       index: true,
@@ -28,7 +45,7 @@ const bookSchema = new mongoose.Schema(
       type: [String],
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.ObjectId,
       ref: "User",
       required: [true, "Book must belong to a user"],
       index: true, // Index on userId for faster queries
@@ -40,12 +57,12 @@ const bookSchema = new mongoose.Schema(
   },
 );
 
-bookSchema.pre(/^find/, function (next) {
+bookSchema.pre<IBook>(/^find/, function (next) {
   // this.populate({ path: "author", select: "id name category" });
   this.populate("author");
   next();
 });
 
-const Book = mongoose.model("Book", bookSchema);
+const Book = mongoose.model<IBook>("Book", bookSchema);
 
 export default Book;

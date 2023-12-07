@@ -11,8 +11,12 @@ process.on("uncaughtException", err => {
 dotenv.config();
 
 import app from "./app.js";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 
-const database = process.env.DB.replace("<PASSWORD>", process.env.DB_PASSWORD);
+const database = process.env.DB!.replace(
+  "<PASSWORD>",
+  process.env.DB_PASSWORD!,
+);
 
 mongoose
   .connect(database)
@@ -22,12 +26,12 @@ const port = process.env.PORT;
 
 console.log(port);
 
-const server = app.listen(port, (req, res) => {
+const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });
 
-process.on("unhandledRejection", err => {
+process.on("unhandledRejection", (err: Error) => {
   console.log("UNHANDLED REJECTION!\nShutting down the server... ");
   console.log(err.name, err.message);
   server.close(() => {

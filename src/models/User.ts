@@ -1,8 +1,18 @@
 import mongoose from "mongoose";
-import validator from "validator";
 import bcrypt from "bcrypt";
+import isEmail from "validator/lib/isEmail.js";
 
-const userSchema = new mongoose.Schema(
+interface IUser extends Document {
+  createdAt: Date;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  passwordConfirm?: string;
+}
+
+const userSchema = new mongoose.Schema<IUser>(
   {
     createdAt: {
       type: Date,
@@ -27,7 +37,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please provide your email"],
       unique: true,
       lowercase: true,
-      validate: [validator.isEmail, "Please provide a valid email"],
+      validate: [isEmail as any, "Please provide a valid email"],
     },
     password: {
       type: String,
@@ -39,7 +49,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please re-enter your password"],
       validate: {
-        validator: function (el) {
+        validator: function (this: IUser, el: string) {
           return el === this.password;
         },
         message: "Passwords must match!",
@@ -50,7 +60,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // encrypt password before being saved to db (after validator is ran)
-userSchema.pre("save", async function (next) {
+userSchema.pre<IUser>("save", async function (next) {
   // hash password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
@@ -59,12 +69,12 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.correctPassword = async function (
-  candidatePassword,
-  userPassword,
+  candidatePassword: string,
+  userPassword: string,
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 
 export default User;

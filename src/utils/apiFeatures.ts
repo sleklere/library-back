@@ -1,15 +1,29 @@
-class APIFeatures {
-  constructor(query, queryObject) {
+import { Document, Model, Query, QueryOptions } from "mongoose";
+
+interface IQueryObj {
+  page?: number;
+  sort?: string;
+  limit?: number;
+  fields?: string;
+}
+
+interface APIFeatures<T extends Document, U extends Model<T>> {
+  query: Query<T[], T, U>;
+  queryObject: IQueryObj;
+}
+
+class APIFeatures<T extends Document, U extends Model<T>> {
+  constructor(query: Query<T[], T, U>, queryObject: IQueryObj) {
     this.query = query;
     this.queryObject = queryObject;
   }
 
   filter() {
-    const queryObjCopy = { ...this.queryObject };
+    const queryObjCopy: IQueryObj = { ...this.queryObject };
     // fields that come from the query string but are not meant to be in the query to the db
     // instead they are meant to trigger a feature (like sorting the results)
-    const excludedFields = ["page", "sort", "limit", "fields"];
-    excludedFields.forEach(el => delete queryObjCopy[el]);
+    const excludedFields: Array<string> = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach(el => delete (queryObjCopy as any)[el]);
 
     // advanced filtering: to query with operators the only thing missing is the '$' in front of the operator
     let queryString = JSON.stringify(queryObjCopy);
@@ -46,8 +60,8 @@ class APIFeatures {
   }
 
   paginate() {
-    const page = +this.queryObject.page || 1;
-    const limit = +this.queryObject.limit || 100;
+    const page = +(this.queryObject?.page ?? 1);
+    const limit = +(this.queryObject?.limit ?? 100);
     /*
      if there are 100 results and we want to show 10 by page and go
      to page 3, we should skip 20 results, hence this formula

@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
-const authorSchema = new mongoose.Schema(
+export interface IAuthor extends Document {
+  createdAt: Date;
+  name: string;
+  categories: Array<string>;
+}
+
+const authorSchema = new mongoose.Schema<IAuthor>(
   {
     createdAt: { type: Date, default: Date.now() },
     name: {
@@ -31,6 +37,6 @@ const authorSchema = new mongoose.Schema(
   },
 );
 
-const Author = mongoose.model("Author", authorSchema);
+const Author = mongoose.model<IAuthor>("Author", authorSchema);
 
 export default Author;

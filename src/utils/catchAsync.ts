@@ -1,7 +1,13 @@
+import { RequestHandler } from "express";
+
 // prettier-ignore
-const catchAsync = (fn) => {
-  const returnedFn = (req, res, next) => {
-    fn(req, res, next).catch(next);
+const catchAsync = (fn:RequestHandler) => {
+  const returnedFn:RequestHandler = (req, res, next) => {
+    try {
+      fn(req, res, next);
+    } catch(err) {
+      next(err)
+    }
   };
   return returnedFn;
 };
