@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest dev",
-    "start": "node ./src/server.js",
-    "start:dev": "SET NODE_ENV=development& nodemon ./src/server.js"
+    "start": "node ./dist/server.js",
+    "start:dev": "SET NODE_ENV=development& nodemon ./dist/server.js"
   },
   "repository": {
     "type": "git",
