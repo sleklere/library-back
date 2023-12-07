@@ -1,13 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import AppError, { IAppError } from "../utils/appError.js";
-import { CastError } from "mongoose";
+import { CastError, Error } from "mongoose";
 
 export const handleCastErrorDB = (err: CastError) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
 };
 
-const handleDuplicateFieldsDB = (err: Error) => {
+interface DuplicateError extends Error {
+  // keyValue?: { [key: string]: any };
+  keyValue: [key: string];
+}
+
+const handleDuplicateFieldsDB = (err: DuplicateError) => {
   let message;
   // send custom error message back to the client
   if ("email" in err.keyValue) {
@@ -20,7 +25,7 @@ const handleDuplicateFieldsDB = (err: Error) => {
   return new AppError(message, 400);
 };
 
-const handleValidationErrorDB = (err: Error) => {
+const handleValidationErrorDB = (err: { errors: Array<Error> }) => {
   const errors = Object.values(err.errors).map(el => el.message);
 
   const message = `Invalid input data. ${errors.join(". ")}`;
@@ -35,7 +40,7 @@ const sendErrorDev = (err: IAppError, req: Request, res: Response) =>
     stack: err.stack,
   });
 
-const sendErrorProd = (err: Error, req: Request, res: Response) => {
+const sendErrorProd = (err: IAppError, req: Request, res: Response) => {
   // Operational error
   if (err.isOperational) {
     return res.status(err.statusCode).json({
@@ -53,7 +58,7 @@ const sendErrorProd = (err: Error, req: Request, res: Response) => {
 };
 
 export default (
-  err: Error,
+  err: IAppError,
   req: Request,
   res: Response,
   next: NextFunction,
