@@ -11,10 +11,10 @@ const req = {
 };
 const res = {
   status: vi.fn().mockReturnThis(),
-  json: vi.fn(x => x),
+  json: vi.fn((x) => x),
 };
 
-const next = vi.fn(x => x);
+const next = vi.fn((x) => x);
 
 describe("createOne()", () => {
   it("should return a status code of 201 when new doc is created", async () => {

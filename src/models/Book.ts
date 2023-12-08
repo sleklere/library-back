@@ -7,7 +7,7 @@ import mongoose, {
 } from "mongoose";
 import { IAuthor } from "./Author.js";
 
-interface IBook extends Document {
+export interface IBook extends Document {
   createdAt: Date;
   title: string;
   author: ObjectId | IAuthor;

@@ -1,15 +1,36 @@
-import jwt from "jsonwebtoken";
-import { promisify } from "util";
-import User from "../models/User.js";
+import jwt, {
+  Jwt,
+  JwtPayload,
+  VerifyErrors,
+  VerifyOptions,
+} from "jsonwebtoken";
+import User, { IUser } from "../models/User.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
+import { Response } from "express";
+import { Document } from "mongoose";
+import { promisify } from "util";
 
-const signToken = id =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
+interface IUserClient extends Document {
+  createdAt: Date;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
+  passwordConfirm?: string;
+}
+
+const signToken = (id: string) =>
+  jwt.sign({ id }, process.env.JWT_SECRET!, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (
+  user: IUserClient,
+  statusCode: number,
+  res: Response,
+) => {
   const token = signToken(user._id);
 
   user.password = undefined;
@@ -24,7 +45,7 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-  const user = await User.create({
+  const user: IUserClient = await User.create({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     username: req.body.username,
@@ -35,12 +56,6 @@ export const signup = catchAsync(async (req, res, next) => {
 
   user.password = undefined;
 
-  // res.status(201).json({
-  //   status: "success",
-  //   data: {
-  //     user,
-  //   },
-  // });
   createSendToken(user, 200, res);
 });
 
@@ -51,7 +66,9 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide username and password!", 400));
   }
 
-  const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({
+    username,
+  }).select("+password");
   const correct = await user?.correctPassword(password, user?.password);
 
   if (!user || !correct)
@@ -59,6 +76,34 @@ export const login = catchAsync(async (req, res, next) => {
 
   createSendToken(user, 200, res);
 });
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser; // Adjust IUser to your actual user interface
+    }
+  }
+}
+
+const jwtVerifyPromisified = (
+  token: string,
+  secret: string,
+): Promise<JwtPayload> => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      token,
+      secret,
+      { complete: true } as VerifyOptions & { complete: true },
+      (err, payload) => {
+        if (err) {
+          reject(new Error("Invalid payload"));
+        } else {
+          resolve(payload!);
+        }
+      },
+    );
+  });
+};
 
 export const protect = catchAsync(async (req, res, next) => {
   const authHeaders = req.headers.authorization;
@@ -73,13 +118,20 @@ export const protect = catchAsync(async (req, res, next) => {
       new AppError("You are not logged in. Please login to access.", 401),
     );
   }
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); // without ts
+  const decoded = await jwtVerifyPromisified(token, process.env.JWT_SECRET!); // with ts
 
-  const currentUser = await User.findById(decoded.id);
+  // const currentUser = await User.findById(decoded.id); // without ts
+  const currentUser = await User.findById(decoded.payload.id); // with ts
 
   // check if current user still exists
   if (!currentUser) {
-    return next("The user belonging to the token does no longer exist.", 401);
+    return next(
+      new AppError(
+        "The user belonging to the token does no longer exist.",
+        401,
+      ),
+    );
   }
 
   // conceed access

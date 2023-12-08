@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import isEmail from "validator/lib/isEmail.js";
 
-interface IUser extends Document {
+export interface IUser extends Document {
   createdAt: Date;
   username: string;
   firstName: string;
@@ -12,7 +12,16 @@ interface IUser extends Document {
   passwordConfirm?: string;
 }
 
-const userSchema = new mongoose.Schema<IUser>(
+interface IUserMethods {
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string,
+  ): Promise<boolean>;
+}
+
+export type UserModel = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
   {
     createdAt: {
       type: Date,
@@ -60,7 +69,7 @@ const userSchema = new mongoose.Schema<IUser>(
 );
 
 // encrypt password before being saved to db (after validator is ran)
-userSchema.pre<IUser>("save", async function (next) {
+userSchema.pre("save", async function (next) {
   // hash password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
@@ -75,6 +84,6 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IUser, UserModel>("User", userSchema);
 
 export default User;

@@ -1,9 +1,13 @@
-import Author from "../models/Author.js";
+import { FilterQuery, Model, Models, Query, QueryOptions } from "mongoose";
+import Author, { IAuthor } from "../models/Author.js";
 import APIFeatures from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+import { IUser } from "../models/User.js";
+import { IBook } from "../models/Book.js";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 
-export const addAuthorToBody = async reqBody => {
+export const addAuthorToBody = async (reqBody: { author: string }) => {
   const { author } = reqBody;
 
   let authorDoc = await Author.findOne({ name: author });
@@ -45,39 +49,49 @@ export const addAuthorToBody = async reqBody => {
  WORKS ONLY FOR TESTING
 */
 
-export const createOne = Model => async (req, res, next) => {
-  try {
-    // if its a book, check if the author exists in the db
-    let reqBody = req.body;
-    if (req.body.author) {
-      reqBody = await addAuthorToBody(reqBody);
+export const createOne =
+  (Model: Model<IAuthor | IUser | IBook>) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // if its a book, check if the author exists in the db
+      let reqBody = req.body;
+      if (req.body.author) {
+        reqBody = await addAuthorToBody(reqBody);
+      }
+      const doc = await Model.create(reqBody);
+
+      if (!doc) {
+        throw new AppError("Document could not be created", 400);
+      }
+
+      const modelName = Model.modelName.toLowerCase();
+
+      res.status(201).json({
+        status: "success",
+        data: {
+          [modelName]: doc,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
-    const doc = await Model.create(reqBody);
+  };
 
-    if (!doc) {
-      throw new AppError("Document could not be created", 400);
-    }
-
-    const modelName = Model.modelName.toLowerCase();
-
-    res.status(201).json({
-      status: "success",
-      data: {
-        [modelName]: doc,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getAll = Model =>
+export const getAll = <T extends BaseModel>(Model: Model<T>) =>
   catchAsync(async (req, res) => {
     // To allow for nested GET reviews on tour (hack)
-    let filter = { userId: req.user._id };
-    if (req.params.author) filter.author = req.params.author;
+    let filter: FilterQuery<T> = {
+      userId: req.user!._id,
+    };
+    if (req.params.author) {
+      filter = { ...filter, author: req.params.author } as FilterQuery<T>;
+    }
+
     // Execute Query
-    const features = new APIFeatures(Model.find(filter), req.query)
+    const features = new APIFeatures(
+      Model.find(filter) as Query<T[], T>,
+      req.query,
+    )
       .filter()
       .sort()
       .limitFields()
@@ -96,10 +110,27 @@ export const getAll = Model =>
     });
   });
 
-export const getOne = (Model, populateOptions) =>
+interface Populate {
+  author?: string;
+  user?: string;
+}
+
+export const getOne = (
+  Model: Model<IAuthor | IUser | IBook>,
+  populateOptions: Populate | undefined,
+) =>
   catchAsync(async (req, res, next) => {
-    let query = Model.findById(req.params.id);
-    if (populateOptions) query = query.populate(populateOptions);
+    let query = Model.findById(req.params.id) as Query<
+      IAuthor[] | IUser[] | IBook[],
+      IAuthor | IUser | IBook,
+      Model<IAuthor | IUser | IBook>
+    >;
+    if (populateOptions) {
+      // If populateOptions is provided, use populate for each key in the options
+      for (const key in populateOptions) {
+        query = query.populate(key);
+      }
+    }
     const doc = await query;
 
     if (!doc) {
@@ -116,7 +147,7 @@ export const getOne = (Model, populateOptions) =>
     });
   });
 
-export const updateOne = Model =>
+export const updateOne = (Model: Model<IAuthor | IUser | IBook>) =>
   catchAsync(async (req, res, next) => {
     let reqBody;
     if (Model.modelName === "Book") {
@@ -142,7 +173,7 @@ export const updateOne = Model =>
     });
   });
 
-export const deleteOne = Model =>
+export const deleteOne = (Model: Model<IAuthor | IUser | IBook>) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
 
@@ -157,7 +188,7 @@ export const deleteOne = Model =>
       data: null,
     });
   });
-export const deleteMany = Model =>
+export const deleteMany = (Model: Model<IAuthor | IUser | IBook>) =>
   catchAsync(async (req, res, next) => {
     console.log(req.body);
     const { bookIDs } = req.body;

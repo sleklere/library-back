@@ -7,29 +7,29 @@ interface IQueryObj {
   fields?: string;
 }
 
-interface APIFeatures<T extends Document, U extends Model<T>> {
-  query: Query<T[], T, U>;
+interface APIFeatures<T extends Document> {
+  query: Query<Array<T>, T, Model<T>>;
   queryObject: IQueryObj;
 }
 
-class APIFeatures<T extends Document, U extends Model<T>> {
-  constructor(query: Query<T[], T, U>, queryObject: IQueryObj) {
+class APIFeatures<T extends Document> {
+  constructor(query: Query<Array<T>, T, Model<T>>, queryObject: IQueryObj) {
     this.query = query;
     this.queryObject = queryObject;
   }
 
-  filter() {
+  filter(): this {
     const queryObjCopy: IQueryObj = { ...this.queryObject };
     // fields that come from the query string but are not meant to be in the query to the db
     // instead they are meant to trigger a feature (like sorting the results)
     const excludedFields: Array<string> = ["page", "sort", "limit", "fields"];
-    excludedFields.forEach(el => delete (queryObjCopy as any)[el]);
+    excludedFields.forEach((el) => delete (queryObjCopy as any)[el]);
 
     // advanced filtering: to query with operators the only thing missing is the '$' in front of the operator
     let queryString = JSON.stringify(queryObjCopy);
     queryString = queryString.replace(
       /\b(gte|gt|lte|lt)\b/g,
-      match => `$${match}`,
+      (match) => `$${match}`,
     );
 
     this.query = this.query.find(JSON.parse(queryString));
@@ -37,7 +37,7 @@ class APIFeatures<T extends Document, U extends Model<T>> {
     return this;
   }
 
-  sort() {
+  sort(): this {
     if (this.queryObject.sort) {
       // sort by more than one field (to address the cases in which more than 1 document has the same field that is 1st sorted by)
       const sortBy = this.queryObject.sort.split(",").join(" ");
@@ -49,7 +49,7 @@ class APIFeatures<T extends Document, U extends Model<T>> {
     return this;
   }
 
-  limitFields() {
+  limitFields(): this {
     if (this.queryObject.fields) {
       const fields = this.queryObject.fields.split(",").join(" ");
       this.query = this.query.select(fields);
@@ -59,7 +59,7 @@ class APIFeatures<T extends Document, U extends Model<T>> {
     return this;
   }
 
-  paginate() {
+  paginate(): this {
     const page = +(this.queryObject?.page ?? 1);
     const limit = +(this.queryObject?.limit ?? 100);
     /*
