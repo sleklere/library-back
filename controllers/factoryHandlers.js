@@ -87,7 +87,7 @@ export const getAll = Model =>
 
     const modelName = Model.modelName.toLowerCase();
 
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       results: doc.length,
       data: {

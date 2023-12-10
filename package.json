@@ -5,7 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "vitest dev",
+    "test": "mocha test --exit",
+    "test:watch": "mocha --watch --parallel --recursive test",
+    "test:vi": "vitest dev --reporter verbose",
     "start": "node server.js",
     "start:dev": "SET NODE_ENV=production& nodemon server.js"
   },
@@ -23,7 +25,8 @@
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "^3.0.3",
-    "vitest": "^0.34.5"
+    "supertest": "^6.3.3",
+    "vitest": "^1.0.2"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
