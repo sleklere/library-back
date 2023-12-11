@@ -60,31 +60,34 @@ export const login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-export const protect = catchAsync(async (req, res, next) => {
-  const authHeaders = req.headers.authorization;
-  let token;
+export const protect = async (req, _res, next) => {
+  try {
+    const authHeaders = req.headers.authorization;
+    let token;
 
-  if (authHeaders && authHeaders.startsWith("Bearer")) {
-    token = authHeaders.split(" ")[1];
+    if (authHeaders && authHeaders.startsWith("Bearer")) {
+      token = authHeaders.split(" ")[1];
+    }
+
+    if (!token) {
+      return next(
+        new AppError("You are not logged in. Please login to access.", 401),
+      );
+    }
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+    const currentUser = await User.findById(decoded.id);
+
+    // check if current user still exists
+    if (!currentUser) {
+      return next("The user belonging to the token does no longer exist.", 401);
+    }
+
+    // conceed access
+    req.user = currentUser;
+
+    next();
+  } catch (err) {
+    next(err);
   }
-
-  if (!token) {
-    return next(
-      new AppError("You are not logged in. Please login to access.", 401),
-    );
-  }
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  console.log(decoded.id);
-
-  const currentUser = await User.findById(decoded.id);
-
-  // check if current user still exists
-  if (!currentUser) {
-    return next("The user belonging to the token does no longer exist.", 401);
-  }
-
-  // conceed access
-  req.user = currentUser;
-  next();
-});
+};

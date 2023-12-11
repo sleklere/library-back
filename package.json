@@ -5,9 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "mocha test --exit",
-    "test:watch": "mocha --watch --parallel --recursive test",
-    "test:vi": "vitest dev --reporter verbose",
+    "test": "vitest dev --reporter verbose",
     "start": "node server.js",
     "start:dev": "SET NODE_ENV=production& nodemon server.js"
   },

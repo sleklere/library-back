@@ -36,6 +36,7 @@ describe("createOne()", () => {
     expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalled();
   });
+
   it("should throw an AppError with status 400 if no doc is created", async () => {
     const createDoc = createOne(Book);
     await createDoc(req, res, next);

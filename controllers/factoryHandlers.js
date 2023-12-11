@@ -71,8 +71,8 @@ export const createOne = Model => async (req, res, next) => {
   }
 };
 
-export const getAll = Model =>
-  catchAsync(async (req, res) => {
+export const getAll = Model => async (req, res) => {
+  try {
     // To allow for nested GET reviews on tour (hack)
     let filter = { userId: req.user._id };
     if (req.params.author) filter.author = req.params.author;
@@ -94,7 +94,10 @@ export const getAll = Model =>
         [`${modelName}s`]: doc,
       },
     });
-  });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
