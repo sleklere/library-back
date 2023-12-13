@@ -71,8 +71,36 @@ export const createOne = Model => async (req, res, next) => {
   }
 };
 
-export const getAll = Model => async (req, res) => {
-  try {
+// export const getAll = Model => async (req, res) => {
+//   try {
+//     // To allow for nested GET reviews on tour (hack)
+//     let filter = { userId: req.user._id };
+//     if (req.params.author) filter.author = req.params.author;
+//     // Execute Query
+//     const features = new APIFeatures(Model.find(filter), req.query)
+//       .filter()
+//       .sort()
+//       .limitFields()
+//       .paginate();
+
+//     const doc = await features.query;
+
+//     const modelName = Model.modelName.toLowerCase();
+
+//     return res.status(200).json({
+//       status: "success",
+//       results: doc.length,
+//       data: {
+//         [`${modelName}s`]: doc,
+//       },
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+export const getAll = Model =>
+  catchAsync(async (req, res) => {
     // To allow for nested GET reviews on tour (hack)
     let filter = { userId: req.user._id };
     if (req.params.author) filter.author = req.params.author;
@@ -82,11 +110,8 @@ export const getAll = Model => async (req, res) => {
       .sort()
       .limitFields()
       .paginate();
-
     const doc = await features.query;
-
     const modelName = Model.modelName.toLowerCase();
-
     return res.status(200).json({
       status: "success",
       results: doc.length,
@@ -94,10 +119,7 @@ export const getAll = Model => async (req, res) => {
         [`${modelName}s`]: doc,
       },
     });
-  } catch (err) {
-    next(err);
-  }
-};
+  });
 
 export const getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
