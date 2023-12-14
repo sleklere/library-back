@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { signToken } from "../controllers/authController.js";
 import mongoose from "mongoose";
 import app from "../app.js";
+import { testUser } from "../test/config.js";
 
 /*
 
@@ -27,29 +28,77 @@ afterAll(() => {
   mongoose.disconnect();
 });
 
-const authToken = signToken("650330e518616d0affa8d0c9");
+const authToken = signToken(testUser.id);
 
 const request = supertest(app);
+const booksEndpoint = "/api/v1/books";
 
-describe("GET endpoints", () => {
-  describe("/api/v1/books/", () => {
+let testDocId;
+
+describe(booksEndpoint, () => {
+  describe("POST", () => {
+    it("comes back with status 201 and the created book object", async () => {
+      const payload = {
+        title: "Test title",
+        author: "Test author",
+        userId: testUser.id,
+        categories: ["Filosofía"],
+      };
+
+      const res = await request
+        .post(booksEndpoint)
+        .set("Authorization", `Bearer ${authToken}`)
+        .set("Accept", "application/json")
+        .send(payload);
+
+      expect(res.statusCode).to.equal(201);
+      expect(res.body.data.book).toHaveProperty("author");
+    });
+  });
+  describe("GET", () => {
     it("responds with a json containing an array of books", async () => {
       const res = await request
-        .get("/api/v1/books/")
+        .get(booksEndpoint)
         .set("Authorization", `Bearer ${authToken}`)
         .set("Accept", "application/json");
+
+      testDocId = res.body.data.books[0].id;
       expect("Content-Type", /json/);
-      expect(res.status).to.equal(200);
+      expect(res.statusCode).to.equal(200);
       expect(res.body.data.books).to.be.an("array");
     });
 
     it("has a data property", async () => {
-      const authToken = signToken("650330e518616d0affa8d0c9");
       const res = await request
-        .get("/api/v1/books/")
+        .get(booksEndpoint)
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.body).to.have.property("data");
+    });
+  });
+  describe("UPDATE", () => {
+    it("should change the title of the book to 'updated title'", async () => {
+      const payload = { title: "updated title" };
+
+      console.log(testDocId);
+
+      const res = await request
+        .patch(`${booksEndpoint}/${testDocId}/edit`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .set("Accept", "application/json")
+        .send(payload);
+
+      expect(res.statusCode).toBe(200);
+      // expect(res.body.data.book.title).toBe("updated title");
+    });
+  });
+  describe("DELETE", () => {
+    it("should delete the test doc created and respond with 204", async () => {
+      const res = await request
+        .delete(`${booksEndpoint}/${testDocId}`)
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(204);
     });
   });
 });

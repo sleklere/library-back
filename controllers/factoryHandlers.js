@@ -122,7 +122,7 @@ export const getOne = (Model, populateOptions) =>
 export const updateOne = Model =>
   catchAsync(async (req, res, next) => {
     let reqBody;
-    if (Model.modelName === "Book") {
+    if (Model.modelName === "Book" && req.body.author) {
       reqBody = await addAuthorToBody(req.body);
     }
 
