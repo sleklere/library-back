@@ -1,25 +1,29 @@
-import { describe, expect, it, vi } from "vitest";
+import { Mock, describe, expect, it, vi } from "vitest";
 import { createOne } from "./factoryHandlers.js";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 import Book from "../models/Book.js";
+import { Request, Response } from "express";
+import { Model } from "mongoose";
 
 vi.mock("../models/User.js");
 vi.mock("../models/Book.js");
 
 const req = {
   body: { email: "fake_email", password: "fake_password" },
-};
+} as Request;
 const res = {
   status: vi.fn().mockReturnThis(),
   json: vi.fn((x) => x),
-};
+} as unknown as Response;
 
 const next = vi.fn((x) => x);
 
 describe("createOne()", () => {
   it("should return a status code of 201 when new doc is created", async () => {
     // arrange
-    const DocToTest = User;
+    // Use the custom type for the mocked create method
+    const DocToTest = User as unknown as Model<IUser> & { create: Mock };
+
     DocToTest.create.mockResolvedValueOnce({
       id: 1,
       email: "result_email",

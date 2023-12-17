@@ -1,11 +1,11 @@
-import { FilterQuery, Model, Models, Query, QueryOptions } from "mongoose";
+import { FilterQuery, Model, Query } from "mongoose";
 import Author, { IAuthor } from "../models/Author.js";
 import APIFeatures from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import { IUser } from "../models/User.js";
 import { IBook } from "../models/Book.js";
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export const addAuthorToBody = async (reqBody: { author: string }) => {
   const { author } = reqBody;
@@ -88,7 +88,10 @@ export const getAll = <T>(Model: Model<T>) =>
     }
 
     // Execute Query
-    const features = new APIFeatures<IBook>(Model.find(filter), req.query)
+    const features = new APIFeatures<IBook | IUser | IAuthor>(
+      Model.find(filter),
+      req.query,
+    )
       .filter()
       .sort()
       .limitFields()

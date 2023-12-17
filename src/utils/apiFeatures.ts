@@ -1,4 +1,4 @@
-import { Document, Model, Query, QueryOptions } from "mongoose";
+import { Document, Query } from "mongoose";
 
 interface IQueryObj {
   page?: number;

@@ -1,15 +1,9 @@
-import jwt, {
-  Jwt,
-  JwtPayload,
-  VerifyErrors,
-  VerifyOptions,
-} from "jsonwebtoken";
+import jwt, { JwtPayload, VerifyOptions } from "jsonwebtoken";
 import User, { IUser } from "../models/User.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import { Response } from "express";
 import { Document } from "mongoose";
-import { promisify } from "util";
 
 interface IUserClient extends Document {
   createdAt: Date;

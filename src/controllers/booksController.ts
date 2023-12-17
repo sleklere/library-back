@@ -1,5 +1,4 @@
-import { Model } from "mongoose";
-import Book, { IBook } from "../models/Book.js";
+import Book from "../models/Book.js";
 import catchAsync from "../utils/catchAsync.js";
 import {
   getAll,

@@ -1,10 +1,4 @@
-import mongoose, {
-  Document,
-  ObjectId,
-  PopulatedDoc,
-  Schema,
-  Types,
-} from "mongoose";
+import mongoose, { Document, ObjectId, Schema } from "mongoose";
 import { IAuthor } from "./Author.js";
 
 export interface IBook extends Document {
