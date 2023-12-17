@@ -1,4 +1,5 @@
-import Book from "../models/Book.js";
+import { Model } from "mongoose";
+import Book, { IBook } from "../models/Book.js";
 import catchAsync from "../utils/catchAsync.js";
 import {
   getAll,
@@ -10,7 +11,7 @@ import {
 } from "./factoryHandlers.js";
 
 export const getAllBooks = getAll(Book);
-export const getBook = getOne(Book);
+export const getBook = getOne(Book, undefined);
 export const createBook = createOne(Book);
 export const editBook = updateOne(Book);
 export const deleteBook = deleteOne(Book);
@@ -26,8 +27,8 @@ export const getAllBooksSortAuthor = catchAsync(async (req, res) => {
   } else if (req.query.sort === "-author") {
     sortOrder = -1; // Sort by author name in descending order
   } else {
-    sortField = req.query.sort;
-    sortOrder = req.query.sort.includes("-") ? "desc" : "asc";
+    sortField = req.query.sort as string;
+    sortOrder = (req.query.sort as string).includes("-") ? -1 : 1;
   }
 
   // Execute Query
@@ -44,7 +45,8 @@ export const getAllBooksSortAuthor = catchAsync(async (req, res) => {
       $unwind: "$author", // Unwind the array created by $lookup
     },
     {
-      $sort: { [sortField]: sortOrder }, // Dynamic sorting based on 'sortField'
+      // Dynamic sorting based on 'sortField'
+      $sort: { [sortField]: sortOrder } as Record<string, 1 | -1>, // Explicitly type $sort stage,
     },
   ]);
 

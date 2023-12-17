@@ -8,12 +8,12 @@ interface IQueryObj {
 }
 
 interface APIFeatures<T extends Document> {
-  query: Query<Array<T>, T, Model<T>>;
+  query: Query<T[], T>;
   queryObject: IQueryObj;
 }
 
 class APIFeatures<T extends Document> {
-  constructor(query: Query<Array<T>, T, Model<T>>, queryObject: IQueryObj) {
+  constructor(query: Query<T[], T>, queryObject: IQueryObj) {
     this.query = query;
     this.queryObject = queryObject;
   }
