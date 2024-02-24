@@ -6,6 +6,7 @@ import catchAsync from "../utils/catchAsync.js";
 import { IUser } from "../models/User.js";
 import { IBook } from "../models/Book.js";
 import { NextFunction, Request, Response } from "express";
+import Category from "../models/Category.js";
 
 export const addAuthorToBody = async (reqBody: { author: string }) => {
   const { author } = reqBody;
@@ -21,7 +22,7 @@ export const addAuthorToBody = async (reqBody: { author: string }) => {
   return reqBody;
 };
 
-// export const createOne = Model =>
+// export const createOne = (Model) =>
 //   catchAsync(async (req, res) => {
 //     // if its a book, check if the author exists in the db
 //     let reqBody = req.body;
@@ -29,6 +30,16 @@ export const addAuthorToBody = async (reqBody: { author: string }) => {
 //       reqBody = await addAuthorToBody(reqBody);
 //     }
 //     const doc = await Model.create(reqBody);
+
+//     console.log("create one");
+//     // create category if it didn't already exist
+//     const categoriesInDB = (await Category.find()).map((doc) => doc.name);
+//     console.log(categoriesInDB);
+//     for (const category in reqBody.categories) {
+//       if (!categoriesInDB.includes(category)) {
+//         await Category.create({ name: category });
+//       }
+//     }
 
 //     if (!doc) {
 //       console.log("NO DOCUMENT WAS CREATED");
@@ -59,6 +70,15 @@ export const createOne =
         reqBody = await addAuthorToBody(reqBody);
       }
       const doc = await Model.create(reqBody);
+
+      // create category if it didn't already exist
+      const categoriesInDB = (await Category.find()).map((doc) => doc.name);
+
+      for (const category of reqBody.categories) {
+        if (!categoriesInDB.includes(category)) {
+          await Category.create({ name: category });
+        }
+      }
 
       if (!doc) {
         throw new AppError("Document could not be created", 400);
