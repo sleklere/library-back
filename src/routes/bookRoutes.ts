@@ -8,6 +8,7 @@ import {
   deleteBook,
   getAllBooksSortAuthor,
   deleteBooks,
+  getAllCategories,
 } from "../controllers/booksController.js";
 
 const router = Router();
@@ -16,6 +17,9 @@ const router = Router();
 router.use(protect);
 
 router.get("/sortAuthor", getAllBooksSortAuthor);
+
+// get all categories
+router.get("/categories", getAllCategories);
 
 // get one book
 router.get("/:id", getBook);

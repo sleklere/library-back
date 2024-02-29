@@ -1,4 +1,5 @@
 import Book from "../models/Book.js";
+import Category from "../models/Category.js";
 import catchAsync from "../utils/catchAsync.js";
 import {
   getAll,
@@ -15,6 +16,18 @@ export const createBook = createOne(Book);
 export const editBook = updateOne(Book);
 export const deleteBook = deleteOne(Book);
 export const deleteBooks = deleteMany(Book);
+
+export const getAllCategories = catchAsync(async (req, res) => {
+  const categories = await Category.find({});
+
+  res.status(200).json({
+    status: "success",
+    results: categories.length,
+    data: {
+      categories,
+    },
+  });
+});
 
 export const getAllBooksSortAuthor = catchAsync(async (req, res) => {
   // Determine sorting order based on the 'sort' query parameter
